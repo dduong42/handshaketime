@@ -3,9 +3,11 @@ package handshaketime
 import (
 	"net"
 	"time"
+// DEBUG
+	"fmt"
+// DEBUG
 	"code.google.com/p/gopacket"
 	"code.google.com/p/gopacket/layers"
-	"fmt"
 )
 
 func getSrc(packet gopacket.Packet) net.IP {
@@ -43,7 +45,10 @@ func handlePacket(packet gopacket.Packet, machineIP net.IP, db DatabaseProxy) {
 				handshakeTime := HandshakeTime{ip: src, time: time.Now().Sub(synPacket.timeReceived)}
 				db.deleteSynPacket(synPacket)
 				db.saveHandshakeTime(handshakeTime)
+				// DEBUG
 				fmt.Println("IP: ", src, "Time: ", handshakeTime.time)
+				fmt.Println(db.getHandshakeTimes())
+				// DEBUG
 			}
 		}
 	}

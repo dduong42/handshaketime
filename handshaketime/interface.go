@@ -2,6 +2,10 @@ package handshaketime
 
 import (
 	"net"
+	"time"
+// Debug
+	"fmt"
+//
 	"code.google.com/p/gopacket"
 	"code.google.com/p/gopacket/pcap"
 )
@@ -33,7 +37,7 @@ func GetIpByInterface(ifaceName string) (net.IP, error) {
 }
 
 func StartMonitoring(ifaceName string) {
-	if handle, err := pcap.OpenLive(ifaceName, 1600, true, 0); err != nil {
+	if handle, err := pcap.OpenLive(ifaceName, 1600, true, pcap.BlockForever); err != nil {
 		panic(err)
 	} else if err := handle.SetBPFFilter("tcp"); err != nil {
 		panic(err)
@@ -44,6 +48,16 @@ func StartMonitoring(ifaceName string) {
 			panic(err)
 		} else {
 			packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+
+			ticker := time.NewTicker(time.Second * 5)
+			go func() {
+				for _ = range ticker.C {
+					fmt.Println("Cleaning !")
+					fmt.Println(db.synPacketMap)
+					db.cleanSynPacket()
+				}
+			}()
+
 			for packet := range packetSource.Packets() {
 				handlePacket(packet, machineIP, db)
 			}
