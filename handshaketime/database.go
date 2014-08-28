@@ -19,9 +19,10 @@ type HandshakeTime struct {
 
 type DatabaseProxy interface {
 	saveSynPacket(SynPacket)
-	saveHandshakeTime(HandshakeTime)
 	getSynPacket(uint32) (SynPacket, error)
 	deleteSynPacket(SynPacket)
+	saveHandshakeTime(HandshakeTime)
+	getHandshakeTimes() []HandshakeTime
 }
 
 type SynPacketLite struct {
@@ -65,6 +66,10 @@ func (db *MemoryDB) deleteSynPacket(synPacket SynPacket) {
 
 func (db *MemoryDB) saveHandshakeTime(handshakeTime HandshakeTime) {
 	db.handshakeTimeSlice = append(db.handshakeTimeSlice, handshakeTime)
+}
+
+func (db *MemoryDB) getHandshakeTimes() []HandshakeTime {
+	return db.handshakeTimeSlice
 }
 
 func createMemoryDB() *MemoryDB {
